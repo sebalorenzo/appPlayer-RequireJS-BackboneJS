@@ -1,0 +1,7 @@
+API SoundClound
+address: http://www.luchodub.com.ar/JS&ZendApp
+Redirect URI for Authentication: http://www.luchodub.com.ar/JS&ZendApp
+ClientID: 916e614d6781d6abe550e92197ffa1db
+Client Secret: 4c92df8337dff26a94c5a3b7c26f8eae
+End User Authorization: https://soundcloud.com/connect
+Token https://api.soundcloud.com/oauth2/token
