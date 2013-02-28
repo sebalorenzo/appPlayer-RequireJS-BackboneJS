@@ -2,6 +2,7 @@ Aplicacion Javascript:
 ======================
 -Modulos (View):
 Buscador en YoutubeAPI y SoundCloud API. (searchModule.js)
+
 Lista que fue armando el usuario (ul). (currentPlaylist.js)
 Armado de listas (li). (songViewModule.js)
 Eliminar canciones de la lista. (deleteViewModule.js)
