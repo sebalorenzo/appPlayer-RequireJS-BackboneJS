@@ -8,9 +8,11 @@ define (["jquery","backbone","APISound","collections/controlCurrentPlaylistColle
 				class:"playlistNow-SoundClound"
 			}),
 		events:{
-			"click li.playCloud":"player"
+			"click li.playCloud":"player",
+			"click li.playTube":"player"
 		},
 		initialize: function(){
+			var that = this;
 			this.collection = new controlCurrentPlaylist();
 			this.collection.on("add", this.addTrackList, this);
 			//this.collection.on("remove", this.deleteTrackList, this);   <-- listener de cuando se borra una cancion de CurrentPlayer
@@ -33,25 +35,20 @@ define (["jquery","backbone","APISound","collections/controlCurrentPlaylistColle
 			
 		},
 		player: function(liSong){
-			var idSong={};
+			var idSong = {};
 			if(isNaN(liSong)){
-				if($(liSong.target).attr("classname") == "playCloud"){
-					if($(liSong.target).attr("class") != "active"){
+				liSong.preventDefault();
+				liSong.stopPropagation ? liSong.stopPropagation() : (liSong.cancelBubble=true);
+				if($(liSong.target).attr("class") != "active"){
 						$(liSong.target).addClass("active");
 					}
-					liSong.preventDefault();
-	   				idSong["id"] = this.separatorIdPLay(liSong.target.id)
+					idSong["id"] = liSong.target.id;
 	   				require("views/playerViewModule").collection.reset(idSong);
 				}
 					
-			}
 			
-		},
-		separatorIdPLay: function(id){
-			var idSong = id.split("_");
-			return parseInt(idSong[1]);
-		}
-		
+			
+		}		
 	});
 	return new currentPlaylist();
 });
