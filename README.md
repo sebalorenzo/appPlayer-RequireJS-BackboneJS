@@ -15,8 +15,6 @@ Coleccion que maneja el reproductor de musica. (controlPlayerMusicCollection.js)
 -Modulos (Models):
 Modelo que maneja el armado de la lista (SongModule.js)
 
-
-
 -Tecnologias usadas para el proyecto:
 Jquery, JqueryIU, Backbone, Underscore, RequireJS, SoundCloud API, Youtube API, SoundManager API.
 
