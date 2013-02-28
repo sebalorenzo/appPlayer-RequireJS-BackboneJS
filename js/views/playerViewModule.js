@@ -11,72 +11,111 @@ define (["jquery","backbone","APISound","collections/controlPlayerMusicCollectio
 			this.$el.html(this.template);
 		},
 		playSong : function(){
-			var idSong = this.collection.pluck("id"), thatPlayer = this;
-			$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
-			this.addListenerPlayer(idSong);
-			SC.stream("/tracks/"+idSong,{useHTML5Audio: true},function(sound){
-				thatPlayer.addListenerSoundObject(idSong, sound)
-				soundManager.stopAll()
-				sound.play({
-  					onfinish: function(){
-  						this.destruct();
-  						$("#statusPlayer").css("background-image", "url(img/playIcon.png)")
-  						if($("#playCloud_"+idSong).next().attr("id") != undefined){
-  							$("#playCloud_"+idSong).removeClass("active").next().trigger("click");
+			var idSong = this.separatorIdPLay(this.collection.pluck("id")), thatPlayer = this;
+			if(idSong[0] == "playCloud"){
+				//Aqui va el reproductor de SoundCloud Api
+				$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
+				SC.stream("/tracks/"+idSong[1],{useHTML5Audio: true},function(sound){
+					thatPlayer.addListenerPlayer(idSong, sound)
+					sound.play({
+	  					onfinish: function(){
+	  						this.destruct();
+	  						$("#statusPlayer").css("background-image", "url(img/playIcon.png)")
+	  						if($("#playCloud_"+idSong[1]).next().attr("id") != undefined){
+	  							$("#playCloud_"+idSong[1]).removeClass("active").next().trigger("click");
+							}
+						},
+						onpause: function(){
+							$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
+						},																			// onpause y onplay se puede reemplazar cuando se activa togglePause usando toggleClass.
+						onplay: function(){
+							$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
+						},
+					});
+	  				$("#statusPlayer").click(function(e) {
+						e.preventDefault();
+						sound.togglePause();
+					});
+	  			});
+			}
+			if(idSong[0] == "playTube"){
+				//Aqui va el reproductor de Youtube Api
+				this.addListenerPlayer(idSong)
+				this.onYouTubeIframeAPIReady(idSong[1]);
+			}
+		},
+		onYouTubeIframeAPIReady: function(idVideoTube) {
+			var player = new YT.Player("ytplayer", {
+	          height: "400",
+	          width: "400",
+	          videoId: idVideoTube,
+	          events: {
+	            'onReady': this.onPlayerReady,
+	            'onStateChange': this.onPlayerStateChange
+	          }
+	    	});
+        },
+		onPlayerReady: function(event) {
+			event.target.playVideo();
+      	},
+      	onPlayerStateChange: function(event){
+      		if(event.data == YT.PlayerState.PAUSED){
+      			$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
+      		}
+      		if(event.data == YT.PlayerState.PLAYING){
+      			$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
+      		}
+      		if(event.data == YT.PlayerState.ENDED){
+      			$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
+      			$("#ytplayer").remove();
+      			$("#playerMusic").append("<div id='ytplayer' style='visibility:hidden;'></div>");
+      			if($("#playTube_"+event.target.b.b.videoId).next().attr("id") != undefined){
+      				$("#playTube_"+event.target.b.b.videoId).removeClass("active").next().trigger("click");
+				}
+			}
+      	},
+      	deleteSound: function(idSong){
+      		if(idSong[0] == "playCloud"){
+					$.each(soundManager.sounds, function(val, sound) {
+						if(sound){
+							sound.destruct();
 						}
-					},
-					onpause: function(){
-						$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
-					},																			// onpause y onplay se puede reemplazar cuando se activa togglePause usando toggleClass.
-					onplay: function(){
-						$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
-					},
-				});
-  				$("#statusPlayer").click(function(e) {
-					e.preventDefault();
-					sound.togglePause();
-				});
-  			});
-			
-		},
-		addListenerPlayer: function(idSong){
-			$("#nextSong").click(function(e) {
-				e.preventDefault()
-				if($("#playCloud_"+idSong).is(".active")){
-					$("#playCloud_"+idSong).trigger("next")
+					});
+				}
+				if(idSong[0] == "playTube"){
+					$("#ytplayer").remove();
+					$("#playerMusic").append("<div id='ytplayer' style='visibility:hidden;'></div>");
+				}
+      	},
+      	addListenerPlayer: function(idSong, sound){
+      		var that = this;
+      		$("#nextSong").on("click", function(e) {
+      			e.preventDefault();
+      			that.deleteSound(idSong);
+				if($("#"+idSong[0]+"_"+idSong[1]).is(".active")){
+					if($("#"+idSong[0]+"_"+idSong[1]).next().attr("id") != undefined){
+						$("#"+idSong[0]+"_"+idSong[1]).removeClass("active").next().trigger("click");
+						e.stopImmediatePropagation();
+						
+					}
 				}
 			});
-			$("#playCloud_"+idSong).on("next",function(e){
-				e.preventDefault()
-				if($(this).next().attr("id") != undefined){
-					//alert($(this).next().attr("id"))
-					$(this).removeClass("active").next().click();
-				}
-				
-			});
-			$("#previousSong").click(function(e){
-				e.preventDefault()
-				if($("#playCloud_"+idSong).is(".active")){
-					$("#playCloud_"+idSong).trigger("previous")
-				}
-			});
-			$("#playCloud_"+idSong).on("previous", function(e){
-				e.preventDefault()
-				if($(this).prev().attr("id") != undefined){
-					//alert($(this).prev().attr("id"))
-					$(this).removeClass("active").prev().click();
-					
+			$("#previousSong").on("click", function(e){
+				e.preventDefault();
+				that.deleteSound(idSong);
+				if($("#"+idSong[0]+"_"+idSong[1]).is(".active")){
+					if($("#"+idSong[0]+"_"+idSong[1]).prev().attr("id") != undefined){
+						$("#"+idSong[0]+"_"+idSong[1]).removeClass("active").prev().trigger("click");
+						e.stopImmediatePropagation();
+						
+						
+					}
 				}
 			});
 		},
-		addListenerSoundObject: function(idSong, sound){
-			$("li.playCloud").click(function(){
-				sound.destruct();
-			});
-			$("#playCloud_"+idSong).on("next previous", function(){
-				sound.destruct();
-			});
-			
+		separatorIdPLay: function(id){
+			var idSongTrack = id[0].split("_");
+			return idSongTrack;
 		}
 	});
 	return new playerView();
