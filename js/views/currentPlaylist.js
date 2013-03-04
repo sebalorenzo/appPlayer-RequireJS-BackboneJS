@@ -32,22 +32,22 @@ define (["jquery","backbone","APISound","collections/controlCurrentPlaylistColle
 				});
 				this.$el.append(this.ul.append(songPlayList.render().el))
 			}
-			
 		},
 		player: function(liSong){
 			var idSong = {};
+			var playerModule = require("views/playerViewModule");
 			if(isNaN(liSong)){
 				liSong.preventDefault();
 				liSong.stopPropagation ? liSong.stopPropagation() : (liSong.cancelBubble=true);
-				if($(liSong.target).attr("class") != "active"){
-						$(liSong.target).addClass("active");
-					}
-					idSong["id"] = liSong.target.id;
-	   				require("views/playerViewModule").collection.reset(idSong);
-				}
+				if($("li.active").length > 0){
+					$("li.active").removeClass("active");
 					
-			
-			
+				}
+				$(liSong.target).addClass("active");
+				idSong["id"] = liSong.target.id;
+				playerModule.deleteSound();
+				playerModule.collection.reset(idSong);
+				}
 		}		
 	});
 	return new currentPlaylist();
