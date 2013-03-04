@@ -22,12 +22,12 @@ define (["jquery","backbone","APISound","collections/controlPlayerMusicCollectio
 	  						this.destruct();
 	  						$("#statusPlayer").css("background-image", "url(img/playIcon.png)")
 	  						if($("#playCloud_"+idSong[1]).next().attr("id") != undefined){
-	  							$("#playCloud_"+idSong[1]).removeClass("active").next().trigger("click");
+	  							$("#playCloud_"+idSong[1]).next().trigger("click");
 							}
 						},
 						onpause: function(){
 							$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
-						},																			// onpause y onplay se puede reemplazar cuando se activa togglePause usando toggleClass.
+						}, // onpause y onplay se puede reemplazar cuando se activa togglePause usando toggleClass.
 						onplay: function(){
 							$("#statusPlayer").css("background-image", "url(img/pauseIcon.png)");
 						},
@@ -67,34 +67,32 @@ define (["jquery","backbone","APISound","collections/controlPlayerMusicCollectio
       		}
       		if(event.data == YT.PlayerState.ENDED){
       			$("#statusPlayer").css("background-image", "url(img/playIcon.png)");
-      			$("#ytplayer").remove();
-      			$("#playerMusic").append("<div id='ytplayer' style='visibility:hidden;'></div>");
+      			this.deleteSound();
       			if($("#playTube_"+event.target.b.b.videoId).next().attr("id") != undefined){
-      				$("#playTube_"+event.target.b.b.videoId).removeClass("active").next().trigger("click");
+      				$("#playTube_"+event.target.b.b.videoId).next().trigger("click");
 				}
 			}
       	},
-      	deleteSound: function(idSong){
-      		if(idSong[0] == "playCloud"){
-					$.each(soundManager.sounds, function(val, sound) {
-						if(sound){
-							sound.destruct();
-						}
-					});
-				}
-				if(idSong[0] == "playTube"){
-					$("#ytplayer").remove();
-					$("#playerMusic").append("<div id='ytplayer' style='visibility:hidden;'></div>");
-				}
+      	deleteSound: function(){
+      		// funcion encargada de borrar el objeto sound (SoundCloud) y eliminar el iframe (Youtube)
+      		$("#ytplayer").remove();
+			$("#playerMusic").append("<div id='ytplayer' style='visibility:hidden;'></div>");
+			try{
+  				$.each(soundManager.sounds, function(val, sound) {
+					if(sound){
+						sound.destruct();
+					}
+				});
+  			}catch(err){}
       	},
       	addListenerPlayer: function(idSong, sound){
       		var that = this;
       		$("#nextSong").on("click", function(e) {
       			e.preventDefault();
-      			that.deleteSound(idSong);
+      			that.deleteSound();
 				if($("#"+idSong[0]+"_"+idSong[1]).is(".active")){
 					if($("#"+idSong[0]+"_"+idSong[1]).next().attr("id") != undefined){
-						$("#"+idSong[0]+"_"+idSong[1]).removeClass("active").next().trigger("click");
+						$("#"+idSong[0]+"_"+idSong[1]).next().trigger("click");
 						e.stopImmediatePropagation();
 						
 					}
@@ -102,13 +100,11 @@ define (["jquery","backbone","APISound","collections/controlPlayerMusicCollectio
 			});
 			$("#previousSong").on("click", function(e){
 				e.preventDefault();
-				that.deleteSound(idSong);
+				that.deleteSound();
 				if($("#"+idSong[0]+"_"+idSong[1]).is(".active")){
 					if($("#"+idSong[0]+"_"+idSong[1]).prev().attr("id") != undefined){
-						$("#"+idSong[0]+"_"+idSong[1]).removeClass("active").prev().trigger("click");
+						$("#"+idSong[0]+"_"+idSong[1]).prev().trigger("click");
 						e.stopImmediatePropagation();
-						
-						
 					}
 				}
 			});
